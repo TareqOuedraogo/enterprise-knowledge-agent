@@ -16,17 +16,19 @@ settings = get_settings()
 # Tout ce qui est après le `yield` s'exécute à l'arrêt
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 1. Crée les tables PostgreSQL si elles n'existent pas
+    # 1. Crée les tables PostgreSQL
     await init_db()
 
-    # 2. Peuple la base avec les données de démo (ignoré si déjà fait)
+    # 2. Peuple la base avec les données de démo
     seed()
 
-    print(" Enterprise Knowledge Agent — démarré")
-    yield
-    # Arrêt propre
-    print("🛑 Arrêt du serveur")
+    # 3. Indexe les documents PDF dans ChromaDB
+    from backend.rag.indexer import index_documents
+    index_documents()
 
+    print("🚀 Enterprise Knowledge Agent — démarré")
+    yield
+    print("🛑 Arrêt du serveur")
 
 # ─── App ──────────────────────────────────────────────────
 app = FastAPI(

@@ -85,7 +85,7 @@ La requête doit se terminer par un point-virgule.
         return f"Erreur lors de l'exécution SQL : {str(e)}"
 
 
-# ─── Outil 2 : RAG (Partie 2 — placeholder) ───────────────
+# ─── Outil 2 : RAG ────────────────────────────────────────
 @tool
 def search_documents(question: str) -> str:
     """
@@ -94,6 +94,7 @@ def search_documents(question: str) -> str:
     - des procédures qualité
     - des normes, plans, formulaires
     - des documents RH ou techniques
+    - la validation de pièces, AS9100, soumissions client
 
     Args:
         question: La question à rechercher dans les documents
@@ -101,9 +102,8 @@ def search_documents(question: str) -> str:
     Returns:
         Les passages pertinents trouvés dans les documents
     """
-    # Sera implémenté en Partie 2 avec ChromaDB + LangChain RAG
-    return "⚠️ Module RAG non encore activé — disponible en Partie 2."
-
+    from backend.rag.retriever import search_documents as rag_search
+    return rag_search(question)
 
 # ─── Outil 3 : Email (Partie 3 — placeholder) ─────────────
 @tool
