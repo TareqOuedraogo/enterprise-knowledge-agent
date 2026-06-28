@@ -106,6 +106,7 @@ def search_documents(question: str) -> str:
     return rag_search(question)
 
 # ─── Outil 3 : Email (Partie 3 — placeholder) ─────────────
+# ─── Outil 3 : Email ──────────────────────────────────────
 @tool
 def draft_email(instruction: str) -> str:
     """
@@ -114,15 +115,17 @@ def draft_email(instruction: str) -> str:
     - rédiger un email
     - informer une équipe
     - préparer une communication
+    - envoyer un résumé à quelqu'un
 
     Args:
         instruction: La description de l'email à rédiger
 
     Returns:
-        Le brouillon d'email formaté
+        Le brouillon d'email formaté prêt à envoyer
     """
-    # Sera implémenté en Partie 3 avec simulation Outlook
-    return "⚠️ Module Email non encore activé — disponible en Partie 3."
+    from backend.email.generator import generate_email, format_email_response
+    email_data = generate_email(instruction)
+    return format_email_response(email_data)
 
 
 # ─── Liste des outils exposés à l'agent ───────────────────
