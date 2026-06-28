@@ -6,7 +6,7 @@ from backend.rag.indexer import vectorstore
 settings = get_settings()
 
 
-def search_documents(query: str, k: int = 4) -> str:
+def search_documents(query: str, k: int = 6) -> str:
     """
     Recherche les chunks les plus pertinents dans ChromaDB
     pour une question donnée.

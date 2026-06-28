@@ -66,8 +66,8 @@ def index_documents() -> Chroma:
     # chunk_size=500 : assez petit pour être précis
     # chunk_overlap=50 : chevauchement pour ne pas perdre le contexte entre chunks
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50,
+        chunk_size=1000,
+        chunk_overlap=150,
         separators=["\n\n", "\n", ".", " "]
     )
     chunks = splitter.split_documents(all_docs)
