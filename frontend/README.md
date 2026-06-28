@@ -1,46 +1,123 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Enterprise Knowledge & Automation Agent
+Agent IA d'entreprise multi-sources — SQL · RAG · Email · LangGraph · FastAPI · React
+Contexte
+Ce projet simule un assistant IA d'entreprise conçu pour le secteur aéronautique.
 
-## Available Scripts
+Un employé pose une question en langage naturel — l'agent orchestre automatiquement plusieurs sources d'information et produit une réponse structurée et professionnelle.
+Scénario concret :
+Un employé écrit : "Prépare la réunion avec Airbus"
+L'agent fait automatiquement :
 
-In the project directory, you can run:
+Interroge la base SQL pour trouver les projets et commandes en cours
+Consulte les documents internes pour les procédures qualité AS9100
+Génère un email de convocation professionnel
+Synthétise tout en une réponse complète structurée
 
-### `npm start`
+Architecture globale
+L'utilisateur interagit via une interface React. Les requêtes passent par FastAPI vers un agent LangGraph qui orchestre trois sources : PostgreSQL pour les données structurées, ChromaDB pour les documents, et un générateur d'emails. GPT-4.1 produit la réponse finale.
+Fonctionnalités
+Partie 1 — Agent SQL
+L'agent reçoit une question en langage naturel, génère automatiquement la requête SQL correspondante, l'exécute sur PostgreSQL et résume les résultats. La base contient des données aéronautiques réalistes : clients Airbus, Bombardier, Bell Textron, projets, commandes, pièces certifiées AS9100.
+Partie 2 — Agent RAG Documents
+Les documents PDF internes sont indexés dans ChromaDB avec des embeddings OpenAI. L'agent effectue une recherche sémantique et cite les sources dans chaque réponse. Documents inclus : procédure QUA-001, guide qualité AS9100, guide de soumission client.
+Partie 3 — Agent Email
+L'agent génère des brouillons d'emails professionnels en français et les sauvegarde en JSON. En production, ce module se brancherait sur Microsoft Graph API pour créer de vrais brouillons dans Outlook.
+Partie 4 — Orchestration complète
+L'agent décide automatiquement quels outils utiliser selon la question. Pour "Prépare la réunion avec Airbus", il active simultanément SQL, RAG et Email et produit une réponse en 5 sections structurées avec sources citées.
+Stack technique
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Frontend : React 18 avec TypeScript
+Backend : FastAPI 0.115 avec Python 3.11
+Agent : LangGraph 0.2.28 avec LangChain
+LLM : OpenAI GPT-4.1
+Base vectorielle : ChromaDB avec text-embedding-3-small
+Base de données : PostgreSQL 16 avec pgvector
+Infrastructure : Docker et Docker Compose
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Lancement rapide
+Prérequis : Docker Desktop, Node.js 18+, clé API OpenAI
+Cloner le repo :
+git clone https://github.com/TareqOuedraogo/enterprise-knowledge-agent.git
+cd enterprise-knowledge-agent
+Configurer les variables d'environnement :
+cp .env.example .env
+Éditer .env et ajouter votre clé OpenAI.
+Lancer le backend :
+docker-compose up --build
+Lancer le frontend dans un second terminal :
+cd frontend
+npm install
+npm start
+Accéder à l'application sur http://localhost:3000 et la documentation API sur http://localhost:8000/docs
+Exemples d'utilisation
+Question SQL
+Question : "Quels projets avons-nous en cours pour Airbus ?"
 
-### `npm test`
+Résultat : L'agent interroge PostgreSQL et retourne le projet A320neo, budget 850 000 euros, statut en cours, date de fin prévue décembre 2024.
+Question RAG
+Question : "Quelle est la procédure de validation AS9100 ?"
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Résultat : L'agent recherche dans les PDFs et retourne les 4 étapes de validation avec citations des sources QUA-001 et norme_qualite_as9100.
+Question Email
+Question : "Rédige un email pour informer l'équipe qualité de la mise à jour QUA-001"
 
-### `npm run build`
+Résultat : L'agent génère un email professionnel complet et sauvegarde le brouillon en JSON.
+Orchestration complète
+Question : "Prépare la réunion avec Airbus"
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Résultat : L'agent active SQL + RAG + Email simultanément et produit une synthèse en 5 sections incluant les données projet, les procédures qualité, les KPIs, le calcul de prix de revient et l'email de convocation.
+Tests de sécurité
+Six vecteurs d'attaque par injection de prompt ont été testés et bloqués :
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Jailbreak DAN classique : bloqué
+Roleplay consultant sans restrictions : bloqué
+Autorité fictive avec code admin : bloqué
+Injection SQL directe dans le chat : bloqué
+Injection via contexte RAG : bloqué
+Escalade progressive : bloqué
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+La protection est assurée par un system prompt de sécurité dédié dans LangGraph.
+Structure du projet
+enterprise-knowledge-agent/
+backend/
+    main.py — FastAPI entrypoint
+    config.py — Settings Pydantic
+    agent/
+        graph.py — LangGraph graph
+        nodes.py — Noeuds agent, tools, synthesis
+        tools.py — Tools SQL, RAG, Email
+        state.py — AgentState TypedDict
+    db/
+        models.py — SQLAlchemy ORM
+        connection.py — PostgreSQL async
+        seed.py — Données de démo
+    rag/
+        indexer.py — ChromaDB indexing
+        retriever.py — Recherche sémantique
+    email/
+        generator.py — Génération emails
+frontend/
+    src/App.tsx — Interface React complète
+docs/pdfs/ — Documents PDF simulés DCM
+scripts/generate_docs.py — Générateur PDFs
+docker-compose.yml
+.env.example
+Améliorations futures
 
-### `npm run eject`
+Authentification OAuth/JWT via Microsoft Active Directory
+Rate limiting sur FastAPI
+Firewall et accès VPN interne uniquement en production
+HTTPS avec certificat SSL en production
+Emails HTML avec logo DCM et pièces jointes PDF
+Microsoft Graph API pour vrais brouillons Outlook
+Fine-tuning du modèle sur les emails DCM réels
+Mémoire de conversation persistante par session utilisateur
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Auteur
+Tareq Ouedraogo
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Diplômé en Intelligence Artificielle — Collège La Cité, Ottawa, 2026
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+GitHub : github.com/TareqOuedraogo
+Projet développé dans le cadre d'une préparation à un poste de Développeur IA et Automatisation dans le secteur aéronautique.
