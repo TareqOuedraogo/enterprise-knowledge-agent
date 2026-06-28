@@ -27,7 +27,7 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./backend:/app
+      - .:/app  # Monte la racine du projet, pas juste /backend
 
 volumes:
   postgres_data:
