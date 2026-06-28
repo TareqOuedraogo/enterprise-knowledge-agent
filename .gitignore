@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# Environnement
+.env
+
+# Base vectorielle
+chroma_db/
+
+# OS
+.DS_Store
+Thumbs.db
